@@ -30,6 +30,11 @@ namespace Visitare
         {
             InitializeComponent();
             pointsList = points.routePoints;
+            Polyline polyline = new Polyline
+            {
+                StrokeColor = Color.Blue,
+                StrokeWidth = 5
+            };
 
             foreach (Points tmp in points.routePoints)
             {
@@ -60,9 +65,11 @@ namespace Visitare
                     //await Navigation.PushAsync(new QuestionPage(new Question()));
 
                 };
-                customMap.Pins.Add(pin);
 
+                polyline.Geopath.Add(new Position(tmp.X, tmp.Y));
+                customMap.Pins.Add(pin);
             }
+            customMap.MapElements.Add(polyline);
 
             if (points.routePoints.Count > 0)
                 customMap.MoveToRegion(MapSpan.FromCenterAndRadius(new Position(points.routePoints[0].X, points.routePoints[0].Y), Distance.FromMiles(2.0)));

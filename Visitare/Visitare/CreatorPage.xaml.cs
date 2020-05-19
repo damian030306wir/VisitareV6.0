@@ -19,7 +19,11 @@ namespace Visitare
     public partial class CreatorPage : ContentPage
     {
         public List<Points> routePoints = new List<Points>();
-
+        public Polyline polyline = new Polyline
+        {
+            StrokeColor = Color.Blue,
+            StrokeWidth = 5
+        };
         public CreatorPage()
         {
             InitializeComponent();
@@ -30,12 +34,18 @@ namespace Visitare
             customMap.Pins.Clear();
             customMap.MapElements.Clear();
             routePoints.Clear();
+            polyline.Geopath.Clear();
         }
         private async void OnMapClicked(object sender, MapClickedEventArgs e)
         {
             if (String.IsNullOrWhiteSpace(nazwaEntry.Text))
             {
                 await DisplayAlert("Błąd", "Podaj nazwę punktu", "Ok");
+                return;
+            }
+            if (customMap.Pins.Count > 10 || routePoints.Count > 10)
+            {
+                await DisplayAlert("Uwaga!", "Można do trasy dodać maksymalnie 10 punktów", "Ok");
                 return;
             }
 
@@ -62,11 +72,12 @@ namespace Visitare
                  {
                      await Navigation.PushAsync(new QuestionPage(new Question()));
                  }*/
-
-
             };
+            polyline.Geopath.Add(new Position(e.Position.Latitude, e.Position.Longitude));
             customMap.CustomPins = new List<CustomPin> { pin };
             customMap.Pins.Add(pin);
+            customMap.MapElements.Add(polyline);
+
             routePoints.Add(new Points()
             {
                 X = e.Position.Latitude,
@@ -75,11 +86,7 @@ namespace Visitare
                 Name = nazwaEntry.Text,
                 Description = opisEntry.Text
             });
-            if(customMap.Pins.Count > 10 && routePoints.Count > 10)
-            {
-                await DisplayAlert("Uwaga!", "Można do trasy dodać maksymalnie 10 punktów", "Ok");
-                customMap.Pins.Remove(pin);
-            }
+            
         }
         private async void OnNewRouteClicked(object sender, EventArgs e)
         {
